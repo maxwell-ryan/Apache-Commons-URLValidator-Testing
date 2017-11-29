@@ -431,9 +431,147 @@ public class UrlValidatorTest extends TestCase {
 	   }
 	   System.out.println("----------------------------------------");
    }
+   //Create Result pair for each of the url components
+
+   /*------------------------------------------------*/
+   //1)construct array of 'good' protocol partition inputs
+   ResultPair[] validProtocolTestInputs = {
+           new ResultPair("http", true),
+           new ResultPair("ftp", true),
+           new ResultPair("https", true),
+           new ResultPair("ftps", true),
+           new ResultPair("telnet", true),
+
+           new ResultPair("fttps", false),
+           new ResultPair("htp", false),
+           new ResultPair("htt", false),
+           new ResultPair("httpp", false),
+           new ResultPair("htttp", false),
+           new ResultPair("ttp", false),
+           new ResultPair("", false),
+           new ResultPair(" ", false),
+
+   };
+
+   /*------------------------------------------------*/
+   //2)construct array of 'good' authority partition inputs with port numbers
+   ResultPair[] validHostnameTestInputs = {
+           new ResultPair("www.espn.com", true),
+           new ResultPair("espn.com", true),
+           new ResultPair("google.com", true),
+           new ResultPair("oregonstate.edu", true),
+           new ResultPair("microsoft.net", true),
+           new ResultPair("theverge.com:80", true),
+           new ResultPair("151.101.1.52", true),
+
+           new ResultPair(".com", false),
+           new ResultPair("google..com", false),
+           new ResultPair("..oregonstate.edu", false),
+           new ResultPair("et", false),
+           new ResultPair("theverge.com:::80", false),
+           new ResultPair("151.101.1.52.6", false),
+           new ResultPair("151.101.1", false),
+           new ResultPair("151.260.1.52", false),
+           new ResultPair(null, false),
+           new ResultPair("localhost",true),
+           new ResultPair("localdomain",true),
+           new ResultPair("www.google.na", true),
+           new ResultPair("www.google.us", true),
+           new ResultPair("www.google.uk", true),
+           new ResultPair("google.na", true),
+           new ResultPair("google.us", true),
+           new ResultPair("google.uk", true),
+           new ResultPair("www.google.com", true),
+
+
+
+           new ResultPair("espn.com:80", true),
+           new ResultPair("espn.com:65535", true),
+           new ResultPair("espn.com:10000", true),
+           new ResultPair("espn.com:1234", true),
+           new ResultPair("espn.com:9999", true),
+           new ResultPair("espn.com:0000", true),
+           new ResultPair("espn.com:123", true),
+           new ResultPair("espn.com:38", true),
+           new ResultPair("espn.com:0", true),
+
+           new ResultPair(null, false),
+           new ResultPair("espn.com:", false),
+           new ResultPair("", false),
+           new ResultPair("espn.com:65536", false),
+           new ResultPair("espn.com:111111", false),
+           new ResultPair("espn.com:-1", false),
+
+   };
+
+   /*------------------------------------------------*/
+   //3)
+   //construct array of 'good' path partition inputs
+   ResultPair[] validPathTestInputs = {
+           new ResultPair("/test/the/path", true),
+           new ResultPair("/test/the/path/", true),
+           new ResultPair("/", true),
+           new ResultPair("/test", true),
+           new ResultPair("/test/", true),
+           new ResultPair("/12/123/1234", true),
+           new ResultPair("/@/", true),
+
+           new ResultPair("/test\the/path", false),
+           new ResultPair("\test/the/path/", false),
+           new ResultPair("//", false),
+           new ResultPair("t/est", false),
+           new ResultPair("/tes//t", false),
+           new ResultPair("121231234", false),
+           new ResultPair(null, false)
+   };
+
+
+   //4)
+   //contruct array of 'good' query partition inputs
+   ResultPair[] querys = {
+           new ResultPair("/?variable=true", true),
+           new ResultPair("/?variable=true&secondVar=false", true),
+           new ResultPair("/?", true),
+           new ResultPair("/?var=true&secondVar=false&thirdVar=int", true),
+           new ResultPair("/", true),
+           new ResultPair("/??variable=true", false),
+           new ResultPair("/?var==true", false)
+   };
+
+   public void testIsValid(){
+       UrlValidator urlVal = new UrlValidator(null, null, (UrlValidator.ALLOW_ALL_SCHEMES + UrlValidator.ALLOW_LOCAL_URLS));
+
+       for(int i = 0; i < validProtocolTestInputs.length; i++){
+           for(int j = 0; j < validHostnameTestInputs.length; j++){
+               for(int k = 0; k < validPathTestInputs.length; k++){
+
+                       boolean result = validProtocolTestInputs[i].valid &&
+                               validHostnameTestInputs[j].valid &&
+                               validPathTestInputs[k].valid;
+
+                       String all = new StringBuilder(255).append(validProtocolTestInputs[i].item)
+                               .append("://")
+                               .append(validHostnameTestInputs[j].item)
+                               .append(validPathTestInputs[k].item)
+                               .toString();
+                       //System.out.println(all);
+
+                       if(urlVal.isValidPath(all) !=result){
+                           System.out.println("Failed: " + all);
+                           System.out.println("  expected: " + result);
+                       }
+                       else{
+                           //System.out.println("SUCESS: " + all);
+                           assertEquals(result, urlVal.isValidPath(all));
+                       }
+
+                   } //end path
+               } //end hostname
+           } //end protocol
+       } //end is valid
+
    
-   
-   
+   /*
    public void testIsValid() {
 	   for(int i = 0;i<10000;i++)
 	   {
@@ -444,6 +582,8 @@ public class UrlValidatorTest extends TestCase {
    public void testAnyOtherUnitTest() {
 	   
    }
+   */
+   
    /**
     * Create set of tests by taking the testUrlXXX arrays and
     * running through all possible permutations of their combinations.
