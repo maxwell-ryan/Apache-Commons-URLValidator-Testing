@@ -556,13 +556,13 @@ public class UrlValidatorTest extends TestCase {
                                .toString();
                        //System.out.println(all);
 
-                       if(urlVal.isValidPath(all) !=result){
+                       if(urlVal.isValid(all) !=result){
                            System.out.println("Failed: " + all);
                            System.out.println("  expected: " + result);
                        }
                        else{
                            //System.out.println("SUCESS: " + all);
-                           assertEquals(result, urlVal.isValidPath(all));
+                           assertEquals(result, urlVal.isValid(all));
                        }
 
                    } //end path
